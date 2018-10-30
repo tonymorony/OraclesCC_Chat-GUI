@@ -1,9 +1,15 @@
 from kivy.app import App
 from kivy.config import Config
+from kivy.uix.recycleview import RecycleView
+from kivy.uix.boxlayout import BoxLayout
+
+
 Config.set('graphics', 'width', '1366')
 Config.set('graphics', 'height', '768')
 
 import rpclib
+import chatlib
+
 
 class TrollboxCCApp(App):
 
@@ -18,6 +24,23 @@ class TrollboxCCApp(App):
         else:
             print("Succesfully connected!")
             break
+
+    def get_rooms_list(self):
+        self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)
+        return self.data
+
+    # def build(self):
+    #     return ChatRooms()
+
+
+class MainBox(BoxLayout):
+    pass
+
+
+class ChatsArea(BoxLayout):
+
+    def get_data(self):
+        self.lv1.data = rpclib.oracles_list(TrollboxCCApp.rpc_connection)
 
 
 if __name__ == "__main__":
