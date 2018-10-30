@@ -1,6 +1,5 @@
 import rpclib
 
-# returning list with chat rooms from list with oracles
 def get_chat_rooms(rpc_connection, oracles_list):
     chat_rooms_list = []
     for oracle_txid in oracles_list:

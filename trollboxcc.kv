@@ -1,4 +1,7 @@
 #:import Factory kivy.factory.Factory
+#:import ListAdapter kivy.adapters.listadapter.ListAdapter
+#:import ListItemButton kivy.uix.listview.ListItemButton
+
 <CreateRoomPopup@Popup>:
     title: 'New chat room creation'
     auto_dismiss: False
@@ -29,9 +32,9 @@ BoxLayout:
             text: 'ROOMS'
 
         ScrollView:
-            # rooms list box
             ListView:
-                item_strings: [str(index) for index in range(100)]
+                adapter: ListAdapter(data = ['0','1','2','3','4','5','6','7','8','9'], cls = ListItemButton)
+
 
         Button:
 

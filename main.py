@@ -1,28 +1,14 @@
 from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.recycleview import RecycleView
-from kivy.uix.textinput import TextInput
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.behaviors.focus import FocusBehavior
-from kivy.uix.popup import Popup
-from kivy.uix.listview import ListView
-
+from kivy.config import Config
+Config.set('graphics', 'width', '1366')
+Config.set('graphics', 'height', '768')
 
 import rpclib
-import chatlib
-
-
-class MyListView(BoxLayout):
-    pass
 
 class TrollboxCCApp(App):
 
     title = "OraclesCC Trollbox"
-    pass
 
-
-if __name__ == "__main__":
     while True:
         try:
             rpc_connection = rpclib.rpc_connect("user3941991022", "pass89db79d7ef9ea31392cb9fdc52163ee8c5e95b5c0e3bbc687cb638720413b8b4d4", 56212)
@@ -32,4 +18,7 @@ if __name__ == "__main__":
         else:
             print("Succesfully connected!")
             break
+
+
+if __name__ == "__main__":
     TrollboxCCApp().run()
