@@ -29,8 +29,15 @@ class TrollboxCCApp(App):
         self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)
         return self.data
 
-    # def build(self):
-    #     return ChatRooms()
+    def on_text(instance, value):
+        print('The widget', instance, 'have:', value)
+
+    def send_message(instance, showid, inputid):
+        showid.item_strings.append(inputid.text)
+        inputid.text = ''
+
+    def callback_refresh_rooms(self, roomslist):
+        roomslist.adapter.data = self.get_rooms_list()
 
 
 class MainBox(BoxLayout):

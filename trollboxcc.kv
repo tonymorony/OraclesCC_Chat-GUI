@@ -32,7 +32,7 @@ BoxLayout:
         BoxLayout:
             # rooms list area
             ListView:
-                id: lv1
+                id: roomslist
                 adapter: ListAdapter(data = app.get_rooms_list(), cls = ListItemButton)
 
         Button:
@@ -51,6 +51,7 @@ BoxLayout:
 
             text: 'Refresh rooms list'
             size_hint: 1, 0.09
+            on_press: app.callback_refresh_rooms(roomslist)
 
     BoxLayout:
 
@@ -66,7 +67,8 @@ BoxLayout:
         ScrollView:
             #messages box area
             ListView:
-                item_strings: [str(index) for index in range(100)]
+                id: messagesbox
+                item_strings: []
 
         BoxLayout:
 
@@ -74,9 +76,10 @@ BoxLayout:
             size_hint: 1, 0.27
 
             TextInput:
-                text: ''
+                id: inputmsg
 
             Button:
 
                 text: 'Send'
+                on_press: app.send_message(messagesbox, inputmsg)
                 size_hint: 0.2, 1
