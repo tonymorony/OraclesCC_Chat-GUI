@@ -1,0 +1,80 @@
+#:import Factory kivy.factory.Factory
+<CreateRoomPopup@Popup>:
+    title: 'New chat room creation'
+    auto_dismiss: False
+    Button:
+        text: 'Close me!'
+        on_release: root.dismiss()
+
+<SubscribeOnRoom@Popup>:
+    title: 'Subscription on room'
+    auto_dismiss: False
+    Button:
+        text: 'Close me!'
+        on_release: root.dismiss()
+
+BoxLayout:
+
+    orientation: 'horizontal'
+    padding: 10
+
+    BoxLayout:
+
+        orientation: 'vertical'
+        padding: 10
+
+        Label:
+            size_hint: (None, 0.05)
+            valign: 'top'
+            text: 'ROOMS'
+
+        ScrollView:
+            # rooms list box
+            ListView:
+                item_strings: [str(index) for index in range(100)]
+
+        Button:
+
+            text: 'Create room'
+            on_release: Factory.CreateRoomPopup().open()
+            size_hint: 1, 0.09
+
+        Button:
+
+            text: 'Subscribe on room'
+            on_release: Factory.CreateRoomPopup().open()
+            size_hint: 1, 0.09
+
+        Button:
+
+            text: 'Refresh rooms list'
+            size_hint: 1, 0.09
+
+    BoxLayout:
+
+        orientation: 'vertical'
+        padding: 10
+
+        Label:
+            size_hint: (None, 0.05)
+            valign: 'top'
+            text: 'MESSAGES'
+
+
+        ScrollView:
+            #messages box
+            ListView:
+                item_strings: [str(index) for index in range(100)]
+
+        BoxLayout:
+
+            orientation: 'horizontal'
+            size_hint: 1, 0.27
+
+            TextInput:
+                text: ''
+
+            Button:
+
+                text: 'Send'
+                size_hint: 0.2, 1
