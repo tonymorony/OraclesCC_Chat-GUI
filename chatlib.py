@@ -28,3 +28,4 @@ def get_latest_batontxids(rpc_connection, oracletxid):
     for i in oraclesinfo_result['registered']:
         latest_batontxids[i['publisher']] = i['batontxid']
     return latest_batontxids
+

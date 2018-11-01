@@ -1,27 +1,30 @@
 #:import Factory kivy.factory.Factory
 #:import ListAdapter kivy.adapters.listadapter.ListAdapter
 #:import ListItemButton kivy.uix.listview.ListItemButton
-<CreateRoomPopup@Popup>:
-    title: 'New chat room creation'
-    auto_dismiss: False
-    Button:
-        text: 'Close me!'
-        on_release: root.dismiss()
+#:import Color kivy.graphics
+#:import Rectangle kivy.graphics
+#:import hex kivy.utils.get_color_from_hex
 
-<SubscribeOnRoom@Popup>:
-    title: 'Subscription on room'
-    auto_dismiss: False
-    Button:
-        text: 'Close me!'
-        on_release: root.dismiss()
+#<CreateRoomPopup@Popup>:
+#    title: 'New chat room creation'
+#    auto_dismiss: False
+#    Button:
+#        text: 'Close me!'
+#        on_release: root.dismiss()
+#
+#<SubscribeOnRoom@Popup>:
+#    title: 'Subscription on room'
+#    auto_dismiss: False
+#    Button:
+#        text: 'Close me!'
+#        on_release: root.dismiss()
 
 BoxLayout:
-
+    id: mainbox
     orientation: 'horizontal'
     padding: 10
-
     BoxLayout:
-
+        id: leftarea
         orientation: 'vertical'
         padding: 10
 
@@ -32,8 +35,9 @@ BoxLayout:
         BoxLayout:
             # rooms list area
             ListView:
+                name: 'roomslist'
                 id: roomslist
-                adapter: ListAdapter(data = app.get_rooms_list(), cls = ListItemButton)
+                adapter: ListAdapter(data = app.get_rooms_list(), cls = 'RoomListItemButton')
 
         Button:
 
@@ -54,21 +58,33 @@ BoxLayout:
             on_press: app.callback_refresh_rooms(roomslist)
 
     BoxLayout:
-
+        id: rightarea
         orientation: 'vertical'
         padding: 10
 
-        Label:
+        MessagesBoxLabel:
+            id: messageslabel
             size_hint: (None, 0.05)
             valign: 'top'
             text: 'MESSAGES'
 
-
         ScrollView:
+            id: messagesscroll
+            padding: 5
+            canvas.before:
+                Color:
+                    #possible to change messages box background color here
+                    rgba: hex('#000000')
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
             #messages box area
             ListView:
-                id: messagesbox
-                item_strings: []
+
+                id: messagesview
+                item_strings: [str(index) for index in app.messages]
+                #adapter: ListAdapter(data = app.messages, cls = 'CompositeListItem')
 
         BoxLayout:
 
