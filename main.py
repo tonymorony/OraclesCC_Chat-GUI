@@ -5,6 +5,7 @@ from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.listview import ListView
+from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 from functools import partial
@@ -40,7 +41,7 @@ class MessageUpdater(Widget):
         while True:
             oracles_info = rpclib.oracles_info(App.get_running_app().rpc_connection, App.get_running_app().active_room_id)
             if App.get_running_app().active_room_id == '':
-                print("Seems its work")
+                print("Seems messages grabbing works")
                 break
             else:
                 baton_returned = ''
@@ -63,18 +64,45 @@ class MessageUpdater(Widget):
                 break
 
 
+class CreateRoomButton(Button):
+
+    def create_room(self, room_name, room_description):
+
+        secret_room_description = "CHAT " + room_description
+        try:
+            new_room_hex = rpclib.oracles_create(App.get_running_app().rpc_connection, room_name, secret_room_description, "S")
+            print(new_room_hex)
+        except Exception as e:
+            print(e)
+        else:
+            try:
+                new_room_txid = rpclib.sendrawtransaction(App.get_running_app().rpc_connection, new_room_hex["hex"])
+                print(new_room_txid)
+            except KeyError as e:
+                print(e)
+                print(new_room_hex)
+
+
+class CreateNicknameButton(Button):
+
+    def create_nickname(self, nickname, password):
+        new_nickname = chatlib.set_nickname(App.get_running_app().rpc_connection, nickname, password)
+        print(new_nickname)
+
+
+class SubscribeOnRoomButton(Button):
+
+    def subscribe_room(self, utxos_amount):
+        chatlib.room_subscription(App.get_running_app().rpc_connection, str(App.get_running_app().active_room_id), utxos_amount)
+
+
 class TrollboxCCApp(App):
-
-
-    def build(self):
-        messenger_gui = Builder.load_file("trollboxcc.kv")
-        return messenger_gui
 
     title = "OraclesCC Trollbox"
 
     active_room_id = ''
 
-    messages = ["test"]
+    messages = []
 
     current_baton = ''
 
@@ -101,6 +129,7 @@ class TrollboxCCApp(App):
 
     def callback_refresh_rooms(self, roomslist):
         roomslist.adapter.data = self.get_rooms_list()
+        print("Room list succesfully refreshed")
 
     def on_press(self):
         print("I'm Working!")

@@ -5,19 +5,86 @@
 #:import Rectangle kivy.graphics
 #:import hex kivy.utils.get_color_from_hex
 
-#<CreateRoomPopup@Popup>:
-#    title: 'New chat room creation'
-#    auto_dismiss: False
-#    Button:
-#        text: 'Close me!'
-#        on_release: root.dismiss()
-#
-#<SubscribeOnRoom@Popup>:
-#    title: 'Subscription on room'
-#    auto_dismiss: False
-#    Button:
-#        text: 'Close me!'
-#        on_release: root.dismiss()
+<CreateNicknamePopup@Popup>:
+    title: 'Nickname creation'
+    auto_dismiss: False
+    size_hint: (0.5, 0.5)
+    BoxLayout:
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            Label:
+                text: 'Nickname:'
+            TextInput:
+                id: input_nickname
+            Label:
+                text: 'Password:'
+            TextInput:
+                id: input_password
+        BoxLayout:
+            size_hint: (1, 0.2)
+            orientation: 'horizontal'
+            CreateNicknameButton:
+                text: 'Create nickname'
+                on_release: self.create_nickname(input_nickname.text, input_password.text)
+            Button:
+                text: 'Cancel'
+                on_release: root.dismiss()
+
+<CreateRoomPopup@Popup>:
+    title: 'New chat room creation'
+    auto_dismiss: False
+    size_hint: (0.5, 0.5)
+    BoxLayout:
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            Label:
+                text: 'Room name:'
+            TextInput:
+                id: input_room_name
+            Label:
+                text: 'Room description:'
+            TextInput:
+                id: input_room_description
+        BoxLayout:
+            size_hint: (1, 0.2)
+            orientation: 'horizontal'
+            CreateRoomButton:
+                text: 'Create room'
+                on_release: self.create_room(input_room_name.text, input_room_description.text)
+            Button:
+                text: 'Cancel'
+                on_release: root.dismiss()
+
+
+<SubscribeOnRoom@Popup>:
+    title: 'Subscribe on room'
+    auto_dismiss: False
+    size_hint: (0.8, 0.8)
+    BoxLayout:
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            Label:
+                text: 'Registration UTXOs amount:'
+            TextInput:
+                id: input_reg_utxos
+            Label:
+                text: 'Room to which you subscribing:'
+            Label:
+                id: display_current_room
+                text: app.active_room_id
+        BoxLayout:
+            size_hint: (1, 0.2)
+            orientation: 'horizontal'
+            SubscribeOnRoomButton:
+                text: 'Subscribe on room'
+                on_release: self.subscribe_room(input_reg_utxos.text)
+            Button:
+                text: 'Cancel'
+                on_release: root.dismiss()
+
 
 BoxLayout:
     id: mainbox
@@ -38,23 +105,27 @@ BoxLayout:
                 name: 'roomslist'
                 id: roomslist
                 adapter: ListAdapter(data = app.get_rooms_list(), cls = 'RoomListItemButton')
+        Button:
+            text: 'Create nickname'
+            on_release: Factory.CreateNicknamePopup().open()
+            size_hint: 1, 0.0675
 
         Button:
 
             text: 'Create room'
             on_release: Factory.CreateRoomPopup().open()
-            size_hint: 1, 0.09
+            size_hint: 1, 0.0675
 
         Button:
 
             text: 'Subscribe on room'
-            on_release: Factory.CreateRoomPopup().open()
-            size_hint: 1, 0.09
+            on_release: Factory.SubscribeOnRoom().open()
+            size_hint: 1, 0.0675
 
         Button:
 
             text: 'Refresh rooms list'
-            size_hint: 1, 0.09
+            size_hint: 1, 0.0675
             on_press: app.callback_refresh_rooms(roomslist)
 
     BoxLayout:

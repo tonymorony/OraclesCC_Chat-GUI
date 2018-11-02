@@ -19,10 +19,25 @@ def getinfo(rpc_connection):
         raise Exception("Connection error!")
     return getinfo
 
-
 def sendrawtransaction(rpc_connection, hex):
     tx_id = rpc_connection.sendrawtransaction(hex)
     return tx_id
+
+def getaccountaddress(rpc_connection, account):
+    account_address = rpc_connection.getaccountaddress(account)
+    return account_address
+
+def validateaddress(rpc_connection, address):
+    validation_result = rpc_connection.validateaddress(address)
+    return validation_result
+
+def signmessage(rpc_connection, address, message):
+    signature = rpc_connection.signmessage(address, message)
+    return signature
+
+def kvupdate(rpc_connection, key, value, days, password):
+    update_result = rpc_connection.kvupdate(key, value, str(days), password)
+    return update_result
 
 
 # Token CC calls
@@ -42,7 +57,6 @@ def token_balance(rpc_connection, token_id):
 def token_list(rpc_connection):
     token_list = rpc_connection.tokenlist()
     return token_list
-
 
 def token_convert(rpc_connection, evalcode, token_id, pubkey, supply):
     try:
@@ -78,6 +92,7 @@ def oracles_list(rpc_connection):
 def oracles_samples(rpc_connection, oracletxid, batonutxo, num):
     oracles_sample = rpc_connection.oraclessamples(oracletxid, batonutxo, num)
     return oracles_sample
+
 
 # Gateways CC calls
 # Arguments changing dynamically depends of M N, so supposed to wrap it this way
