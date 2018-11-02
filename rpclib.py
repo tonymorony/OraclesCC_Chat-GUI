@@ -93,6 +93,9 @@ def oracles_samples(rpc_connection, oracletxid, batonutxo, num):
     oracles_sample = rpc_connection.oraclessamples(oracletxid, batonutxo, num)
     return oracles_sample
 
+def oracles_data(rpc_connection, oracletxid, hexstr):
+    oracles_data_hex = rpc_connection.oraclesdata(oracletxid, hexstr)
+    return oracles_data_hex
 
 # Gateways CC calls
 # Arguments changing dynamically depends of M N, so supposed to wrap it this way

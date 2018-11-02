@@ -3,11 +3,8 @@ from kivy.config import Config
 from kivy.uix.listview import ListItemButton
 from kivy.uix.label import Label
 from kivy.clock import Clock
-from kivy.lang import Builder
-from kivy.uix.listview import ListView
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
-from kivy.uix.boxlayout import BoxLayout
 from functools import partial
 
 
@@ -45,7 +42,7 @@ class MessageUpdater(Widget):
                 break
             else:
                 baton_returned = ''
-                #TODO: it should work with only one publisher now
+                #TODO: it should work with only one publisher now have to add all publishers support to go public testing
                 for entry in oracles_info["registered"]:
                     baton_returned = entry["batontxid"]
             # getting new message to message list only if there any new and changing baton in app for the next check
@@ -123,8 +120,9 @@ class TrollboxCCApp(App):
     def on_text(instance, value):
         print('The widget', instance, 'have:', value)
 
-    def send_message(instance, showid, inputid):
-        showid.item_strings.append(inputid.text)
+    def send_message(instance, inputid):
+        new_message = chatlib.message_sending(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, str(inputid.text))
+        print(new_message)
         inputid.text = ''
 
     def callback_refresh_rooms(self, roomslist):
