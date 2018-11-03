@@ -5,7 +5,21 @@ import sys
 import codecs
 import requests
 import time
+import bitcoin
+from bitcoin.core import CoreMainParams
+from bitcoin.wallet import P2PKHBitcoinAddress
+from bitcoin.core import x
 
+
+class CoinParams(CoreMainParams):
+    MESSAGE_START = b'\x24\xe9\x27\x64'
+    DEFAULT_PORT = 7770
+    BASE58_PREFIXES = {'PUBKEY_ADDR': 60,
+                       'SCRIPT_ADDR': 85,
+'SECRET_KEY': 188}
+
+
+bitcoin.params = CoinParams
 
 #getting list of specific CHAT rooms from oracleslist
 def get_chat_rooms(rpc_connection):
@@ -45,9 +59,7 @@ def set_nickname(rpc_connection, username, password):
 
     kvupdate_result = rpclib.kvupdate(rpc_connection, pubkey, value, 100, password)
     print(kvupdate_result)
-    nickname = kvupdate_result
-    print(nickname)
-    return nickname
+    return kvupdate_result
 
 
 def room_subscription(rpc_connection, roomtxid, utxos_amount):

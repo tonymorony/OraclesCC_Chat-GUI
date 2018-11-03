@@ -6,6 +6,8 @@ from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from functools import partial
+from bitcoin.core import CoreMainParams
+import bitcoin
 
 
 Config.set('graphics', 'width', '1366')
@@ -15,7 +17,19 @@ Config.set('kivy', 'window_icon', 'favicon.ico')
 import rpclib
 import chatlib
 import bitcoinrpc
+import ast
+from bitcoin.wallet import P2PKHBitcoinAddress
+from bitcoin.core import x
+from datetime import datetime
 
+class CoinParams(CoreMainParams):
+    MESSAGE_START = b'\x24\xe9\x27\x64'
+    DEFAULT_PORT = 7770
+    BASE58_PREFIXES = {'PUBKEY_ADDR': 60,
+                       'SCRIPT_ADDR': 85,
+'SECRET_KEY': 188}
+
+bitcoin.params = CoinParams
 
 class MessagesBoxLabel(Label):
 
@@ -44,7 +58,7 @@ class MessageUpdater(Widget):
             # flushing it to not print previous messages
                 baton_returned = {}
             # getting batons to print on each iteration
-                batons_to_print = []
+                data_to_print = {}
             # getting dictionary with current batontxid for each publisher
                 for entry in oracles_info["registered"]:
                     baton_returned[entry["publisher"]] = entry["batontxid"]
@@ -54,26 +68,43 @@ class MessageUpdater(Widget):
             # if publisher already here updating baton and adding it to print queue
                         if baton_returned[publisher] != App.get_running_app().current_baton[publisher]:
                             App.get_running_app().current_baton[publisher] = baton_returned[publisher]
-                            batons_to_print.append(baton_returned[publisher])
+                            try:
+                                data_to_print[publisher] = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned[publisher], "1")['samples'][0][0]
+                            except IndexError:
+                                break
             # if baton is the same as before there is nothing to update
                         else:
                             break
             # if publisher not here adding it with latest baton and adding baton to print queue
                     else:
                         App.get_running_app().current_baton[publisher] = baton_returned[publisher]
-                        batons_to_print.append(baton_returned[publisher])
+                        try:
+                            data_to_print[publisher] = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned[publisher], "1")['samples'][0][0]
+                        except IndexError:
+                            break
             # finally printing messages
             try:
-                for baton in batons_to_print:
-                    new_message = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton, "1")
-                    App.get_running_app().messages.append(str(new_message['samples']))
+                for publisher in data_to_print:
+                    message_list = ast.literal_eval(data_to_print[publisher])
+                    kvsearch_result = rpclib.kvsearch(App.get_running_app().rpc_connection, publisher)
+                    if 'value' in kvsearch_result:
+                        addr = str(P2PKHBitcoinAddress.from_pubkey(x(publisher)))
+                        signature = kvsearch_result['value'][:88]
+                        value = kvsearch_result['value'][88:]
+                        verifymessage_result = rpclib.verifymessage(App.get_running_app().rpc_connection, addr, signature, value)
+                        if verifymessage_result:
+                            message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
+                        else:
+                            message_to_print = 'IMPROPER SIGNATURE' + datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
+                    else:
+                        message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + publisher[0:10] + ']:' + message_list[1]
+                    App.get_running_app().messages.append(message_to_print)
                     App.get_running_app().root.ids.messagesview.adapter.data = App.get_running_app().messages
                 break
             except bitcoinrpc.authproxy.JSONRPCException as e:
                 print(App.get_running_app().active_room_id)
                 print(e)
                 break
-
 
 class CreateRoomButton(Button):
 
