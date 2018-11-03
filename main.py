@@ -85,7 +85,7 @@ class MessageUpdater(Widget):
             # finally printing messages
             try:
                 for publisher in data_to_print:
-                    message_list = ast.literal_eval(data_to_print[publisher])
+                    message_list = ast.literal_eval(data_to_print[publisher].replace('\r','\\r').replace('\n','\\n'))
                     kvsearch_result = rpclib.kvsearch(App.get_running_app().rpc_connection, publisher)
                     if 'value' in kvsearch_result:
                         addr = str(P2PKHBitcoinAddress.from_pubkey(x(publisher)))
@@ -151,7 +151,7 @@ class TrollboxCCApp(App):
 
     while True:
         try:
-            rpc_connection = rpclib.rpc_connect("user3941991022", "pass89db79d7ef9ea31392cb9fdc52163ee8c5e95b5c0e3bbc687cb638720413b8b4d4", 56212)
+            rpc_connection = rpclib.rpc_connect("user1199437057", "passd8b8eab1a089da0b0cf4b309d35064503ae6ffd28b122c6443e0b09ffa70166c7c", 17205)
             rpclib.getinfo(rpc_connection)
         except Exception:
             print("Cant connect to RPC! Please re-check credentials.", "pink")
