@@ -35,9 +35,17 @@ def signmessage(rpc_connection, address, message):
     signature = rpc_connection.signmessage(address, message)
     return signature
 
+def verifymessage(rpc_connection, address, signature, message):
+    verifymessage_result = rpc_connection.verifymessage(address, signature, message)
+    return verifymessage_result
+
 def kvupdate(rpc_connection, key, value, days, password):
     update_result = rpc_connection.kvupdate(key, value, str(days), password)
     return update_result
+
+def kvsearch(rpc_connection, key):
+    kvsearch_result = rpc_connection.kvsearch(key)
+    return kvsearch_result
 
 
 # Token CC calls

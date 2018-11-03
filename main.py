@@ -17,7 +17,6 @@ import chatlib
 import bitcoinrpc
 
 
-
 class MessagesBoxLabel(Label):
 
     def update(self):
@@ -36,24 +35,39 @@ class MessageUpdater(Widget):
 
     def messages_checker(self, dt):
         while True:
+            # getting oraclesinfo for active room
             oracles_info = rpclib.oracles_info(App.get_running_app().rpc_connection, App.get_running_app().active_room_id)
             if App.get_running_app().active_room_id == '':
                 print("Seems messages grabbing works")
                 break
             else:
-                baton_returned = ''
-                #TODO: it should work with only one publisher now have to add all publishers support to go public testing
+            # flushing it to not print previous messages
+                baton_returned = {}
+            # getting batons to print on each iteration
+                batons_to_print = []
+            # getting dictionary with current batontxid for each publisher
                 for entry in oracles_info["registered"]:
-                    baton_returned = entry["batontxid"]
-            # getting new message to message list only if there any new and changing baton in app for the next check
-            if baton_returned != App.get_running_app().current_baton:
-                App.get_running_app().current_baton = baton_returned
-            else:
-                break
+                    baton_returned[entry["publisher"]] = entry["batontxid"]
+            # updating batons for all publishers in app array
+                for publisher in baton_returned:
+                    if publisher in App.get_running_app().current_baton:
+            # if publisher already here updating baton and adding it to print queue
+                        if baton_returned[publisher] != App.get_running_app().current_baton[publisher]:
+                            App.get_running_app().current_baton[publisher] = baton_returned[publisher]
+                            batons_to_print.append(baton_returned[publisher])
+            # if baton is the same as before there is nothing to update
+                        else:
+                            break
+            # if publisher not here adding it with latest baton and adding baton to print queue
+                    else:
+                        App.get_running_app().current_baton[publisher] = baton_returned[publisher]
+                        batons_to_print.append(baton_returned[publisher])
+            # finally printing messages
             try:
-                new_message = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned, "1")
-                App.get_running_app().messages.append(str(new_message['samples']))
-                App.get_running_app().root.ids.messagesview.adapter.data = App.get_running_app().messages
+                for baton in batons_to_print:
+                    new_message = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton, "1")
+                    App.get_running_app().messages.append(str(new_message['samples']))
+                    App.get_running_app().root.ids.messagesview.adapter.data = App.get_running_app().messages
                 break
             except bitcoinrpc.authproxy.JSONRPCException as e:
                 print(App.get_running_app().active_room_id)
@@ -101,7 +115,8 @@ class TrollboxCCApp(App):
 
     messages = []
 
-    current_baton = ''
+    #key: publisher, value: batontxid
+    current_baton = {}
 
     while True:
         try:
@@ -128,10 +143,6 @@ class TrollboxCCApp(App):
     def callback_refresh_rooms(self, roomslist):
         roomslist.adapter.data = self.get_rooms_list()
         print("Room list succesfully refreshed")
-
-    def on_press(self):
-        print("I'm Working!")
-        print(self.active_room_id)
 
     # checking selected chat room for new messages every 0.5 seconds
     message_updater = MessageUpdater()
