@@ -1,5 +1,7 @@
 [![Documentation Status](https://readthedocs.org/projects/trollbox-gui/badge/?version=latest)](https://trollbox-gui.readthedocs.io/en/latest/?badge=latest)
 
+![alt text](https://i.imgur.com/uamsC8q.png)
+
 # Installation 
 
 Tested on Ubuntu 18.04 (assuming python 3.6+ is installed by default)
