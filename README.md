@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/trollbox-gui/badge/?version=latest)](https://trollbox-gui.readthedocs.io/en/latest/?badge=latest)
+
 To start testing:
 1) git clone https://github.com/tonymorony/trollbox_gui
 2)   * sudo apt-get install python3 python3-pip libssl-dev
