@@ -5,6 +5,7 @@
 # Installation 
 
 Tested on Ubuntu 18.04 (assuming python 3.6+ is installed by default)
+And Komodo builded from FSM branch of https://github.com/jl777/komodo/
 
 ```
 sudo add-apt-repository ppa:kivy-team/kivy
