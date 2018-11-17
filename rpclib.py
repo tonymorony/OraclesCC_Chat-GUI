@@ -1,11 +1,11 @@
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from slickrpc import Proxy
 import http
 
 
 # RPC connection
-def rpc_connect(rpc_user, rpc_password, port):
+def rpc_connect(rpc_user, rpc_password, server, port):
     try:
-        rpc_connection = AuthServiceProxy("http://%s:%s@159.69.45.70:%d"%(rpc_user, rpc_password, port), timeout=600)
+        rpc_connection = Proxy("http://%s:%s@%s:%d"%(rpc_user, rpc_password, server, port))
     except (http.client.CannotSendRequest, http.client.RemoteDisconnected, ConnectionRefusedError, OSError):
         raise Exception("Connection error! Probably no daemon on selected port.")
     return rpc_connection
@@ -14,10 +14,10 @@ def rpc_connect(rpc_user, rpc_password, port):
 # Non CC calls
 def getinfo(rpc_connection):
     try:
-        getinfo = rpc_connection.getinfo()
+        info = rpc_connection.getinfo()
     except (http.client.RemoteDisconnected, ConnectionRefusedError, OSError):
         raise Exception("Connection error!")
-    return getinfo
+    return info
 
 def sendrawtransaction(rpc_connection, hex):
     tx_id = rpc_connection.sendrawtransaction(hex)
@@ -67,10 +67,7 @@ def token_list(rpc_connection):
     return token_list
 
 def token_convert(rpc_connection, evalcode, token_id, pubkey, supply):
-    try:
-        token_convert_hex = rpc_connection.tokenconvert(evalcode, token_id, pubkey, supply)
-    except JSONRPCException as e:
-        return e
+    token_convert_hex = rpc_connection.tokenconvert(evalcode, token_id, pubkey, supply)
     return token_convert_hex
 
 

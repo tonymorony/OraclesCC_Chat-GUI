@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.config import Config
 from kivy.uix.listview import ListItemButton
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.uix.button import Button
@@ -10,8 +11,8 @@ from bitcoin.core import CoreMainParams
 import bitcoin
 
 
-Config.set('graphics', 'width', '1366')
-Config.set('graphics', 'height', '768')
+# Config.set('graphics', 'width', '1366')
+# Config.set('graphics', 'height', '768')
 Config.set('kivy', 'window_icon', 'favicon.ico')
 
 import rpclib
@@ -31,6 +32,27 @@ class CoinParams(CoreMainParams):
 
 bitcoin.params = CoinParams
 
+
+class LoginPage(Screen):
+    def verify_credentials(self):
+        server_input = self.ids["rpcserver"].text
+        user_input = self.ids["rpcuser"].text
+        password_input = self.ids["rpcpassword"].text
+        port_input = int(self.ids["port"].text)
+        connection = rpclib.rpc_connect(user_input, password_input, server_input, port_input)
+        if rpclib.getinfo(connection):
+            App.get_running_app().rpc_connection = connection
+            self.manager.current = "user"
+
+
+class UserPage(Screen):
+    pass
+
+
+class ScreenManagement(ScreenManager):
+    pass
+
+
 class MessagesBoxLabel(Label):
 
     def update(self):
@@ -49,62 +71,65 @@ class MessageUpdater(Widget):
 
     def messages_checker(self, dt):
         while True:
-            # getting oraclesinfo for active room
-            oracles_info = rpclib.oracles_info(App.get_running_app().rpc_connection, App.get_running_app().active_room_id)
-            if App.get_running_app().active_room_id == '':
-                print("Seems messages grabbing works")
+            if App.get_running_app().rpc_connection == None:
                 break
             else:
-            # flushing it to not print previous messages
-                baton_returned = {}
-            # getting batons to print on each iteration
-                data_to_print = {}
-            # getting dictionary with current batontxid for each publisher
-                for entry in oracles_info["registered"]:
-                    baton_returned[entry["publisher"]] = entry["batontxid"]
-            # updating batons for all publishers in app array
-                for publisher in baton_returned:
-                    if publisher in App.get_running_app().current_baton:
-            # if publisher already here updating baton and adding it to print queue
-                        if baton_returned[publisher] != App.get_running_app().current_baton[publisher]:
+                # getting oraclesinfo for active room
+                oracles_info = rpclib.oracles_info(App.get_running_app().rpc_connection, App.get_running_app().active_room_id)
+                if App.get_running_app().active_room_id == '':
+                    print("Seems messages grabbing works")
+                    break
+                else:
+                # flushing it to not print previous messages
+                    baton_returned = {}
+                # getting batons to print on each iteration
+                    data_to_print = {}
+                # getting dictionary with current batontxid for each publisher
+                    for entry in oracles_info["registered"]:
+                        baton_returned[entry["publisher"]] = entry["batontxid"]
+                # updating batons for all publishers in app array
+                    for publisher in baton_returned:
+                        if publisher in App.get_running_app().current_baton:
+                # if publisher already here updating baton and adding it to print queue
+                            if baton_returned[publisher] != App.get_running_app().current_baton[publisher]:
+                                App.get_running_app().current_baton[publisher] = baton_returned[publisher]
+                                try:
+                                    data_to_print[publisher] = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned[publisher], "1")['samples'][0][0]
+                                except IndexError:
+                                    break
+                # if baton is the same as before there is nothing to update
+                            else:
+                                break
+                # if publisher not here adding it with latest baton and adding baton to print queue
+                        else:
                             App.get_running_app().current_baton[publisher] = baton_returned[publisher]
                             try:
                                 data_to_print[publisher] = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned[publisher], "1")['samples'][0][0]
                             except IndexError:
                                 break
-            # if baton is the same as before there is nothing to update
+                # finally printing messages
+                try:
+                    for publisher in data_to_print:
+                        message_list = ast.literal_eval(data_to_print[publisher].replace('\r','\\r').replace('\n','\\n'))
+                        kvsearch_result = rpclib.kvsearch(App.get_running_app().rpc_connection, publisher)
+                        if 'value' in kvsearch_result:
+                            addr = str(P2PKHBitcoinAddress.from_pubkey(x(publisher)))
+                            signature = kvsearch_result['value'][:88]
+                            value = kvsearch_result['value'][88:]
+                            verifymessage_result = rpclib.verifymessage(App.get_running_app().rpc_connection, addr, signature, value)
+                            if verifymessage_result:
+                                message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
+                            else:
+                                message_to_print = 'IMPROPER SIGNATURE' + datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
                         else:
-                            break
-            # if publisher not here adding it with latest baton and adding baton to print queue
-                    else:
-                        App.get_running_app().current_baton[publisher] = baton_returned[publisher]
-                        try:
-                            data_to_print[publisher] = rpclib.oracles_samples(App.get_running_app().rpc_connection, App.get_running_app().active_room_id, baton_returned[publisher], "1")['samples'][0][0]
-                        except IndexError:
-                            break
-            # finally printing messages
-            try:
-                for publisher in data_to_print:
-                    message_list = ast.literal_eval(data_to_print[publisher].replace('\r','\\r').replace('\n','\\n'))
-                    kvsearch_result = rpclib.kvsearch(App.get_running_app().rpc_connection, publisher)
-                    if 'value' in kvsearch_result:
-                        addr = str(P2PKHBitcoinAddress.from_pubkey(x(publisher)))
-                        signature = kvsearch_result['value'][:88]
-                        value = kvsearch_result['value'][88:]
-                        verifymessage_result = rpclib.verifymessage(App.get_running_app().rpc_connection, addr, signature, value)
-                        if verifymessage_result:
-                            message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
-                        else:
-                            message_to_print = 'IMPROPER SIGNATURE' + datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + kvsearch_result['value'][88:] + '-' + publisher[0:10] + ']:' + message_list[1]
-                    else:
-                        message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + publisher[0:10] + ']:' + message_list[1]
-                    App.get_running_app().messages.append(message_to_print)
-                    App.get_running_app().root.ids.messagesview.adapter.data = App.get_running_app().messages
-                break
-            except bitcoinrpc.authproxy.JSONRPCException as e:
-                print(App.get_running_app().active_room_id)
-                print(e)
-                break
+                            message_to_print = datetime.utcfromtimestamp(message_list[0]).strftime('%D %H:%M') + '[' + publisher[0:10] + ']:' + message_list[1]
+                        App.get_running_app().messages.append(message_to_print)
+                        App.get_running_app().root.ids.messagesview.adapter.data = App.get_running_app().messages
+                    break
+                except bitcoinrpc.authproxy.JSONRPCException as e:
+                    print(App.get_running_app().active_room_id)
+                    print(e)
+                    break
 
 class CreateRoomButton(Button):
 
@@ -149,18 +174,23 @@ class TrollboxCCApp(App):
     #key: publisher, value: batontxid
     current_baton = {}
 
-    while True:
-        try:
-            rpc_connection = rpclib.rpc_connect("user1199437057", "passd8b8eab1a089da0b0cf4b309d35064503ae6ffd28b122c6443e0b09ffa70166c7c", 17205)
-            rpclib.getinfo(rpc_connection)
-        except Exception:
-            print("Cant connect to RPC! Please re-check credentials.", "pink")
-        else:
-            print("Succesfully connected!")
-            break
+    rpc_connection = None
+
+    # while True:
+    #     try:
+    #         rpc_connection = rpclib.rpc_connect("user1470049397", "passba2f951ca39f5c865a92b3fb2a5ad69b7c49e79fbc4c92884742ee294983d47d63", "159.69.45.70", 56248)
+    #         rpclib.getinfo(rpc_connection)
+    #     except Exception:
+    #         print("Cant connect to RPC! Please re-check credentials.", "pink")
+    #     else:
+    #         print("Succesfully connected!")
+    #         break
 
     def get_rooms_list(self):
-        self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)
+        if App.get_running_app().rpc_connection == None:
+            self.data = ''
+        else:
+            self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)
         return self.data
 
     def on_text(instance, value):

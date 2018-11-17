@@ -85,88 +85,124 @@
                 text: 'Cancel'
                 on_release: root.dismiss()
 
+ScreenManagement:
+    LoginPage:
+    UserPage:
 
-BoxLayout:
-    id: mainbox
-    orientation: 'horizontal'
-    padding: 10
+<LoginPage>:
+    name: "login_page"
     BoxLayout:
-        id: leftarea
         orientation: 'vertical'
-        padding: 10
-
-        Label:
-            size_hint: (None, 0.05)
-            valign: 'top'
-            text: 'ROOMS'
-        BoxLayout:
-            # rooms list area
-            ListView:
-                name: 'roomslist'
-                id: roomslist
-                adapter: ListAdapter(data = app.get_rooms_list(), cls = 'RoomListItemButton')
-        Button:
-            text: 'Create nickname'
-            on_release: Factory.CreateNicknamePopup().open()
-            size_hint: 1, 0.0675
-
-        Button:
-
-            text: 'Create room'
-            on_release: Factory.CreateRoomPopup().open()
-            size_hint: 1, 0.0675
-
-        Button:
-
-            text: 'Subscribe on room'
-            on_release: Factory.SubscribeOnRoom().open()
-            size_hint: 1, 0.0675
-
-        Button:
-
-            text: 'Refresh rooms list'
-            size_hint: 1, 0.0675
-            on_press: app.callback_refresh_rooms(roomslist)
-
-    BoxLayout:
-        id: rightarea
-        orientation: 'vertical'
-        padding: 10
-
-        MessagesBoxLabel:
-            id: messageslabel
-            size_hint: (None, 0.05)
-            valign: 'top'
-            text: 'MESSAGES'
-
-        ScrollView:
-            id: messagesscroll
-            padding: 5
-            canvas.before:
-                Color:
-                    #possible to change messages box background color here
-                    rgba: hex('#000000')
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            #messages box area
-            ListView:
-
-                id: messagesview
-                item_strings: [str(index) for index in app.messages]
-                #adapter: ListAdapter(data = app.messages, cls = 'CompositeListItem')
-
-        BoxLayout:
-
-            orientation: 'horizontal'
-            size_hint: 1, 0.27
-
+        Image:
+            source: 'img/logo.png'
+            size_hint: 1, 0.3
+        GridLayout:
+            rows: 4
+            Label:
+                text: "RPC Server:"
             TextInput:
-                id: inputmsg
+                id: rpcserver
+            Label:
+                text: "RPC User:"
+            TextInput:
+                id: rpcuser
+            Label:
+                text: "RPC Password:"
+            TextInput:
+                id: rpcpassword
+            Label:
+                text: "RPC Port:"
+            TextInput:
+                id: port
+        Button:
+            text: "Try to connect"
+            size_hint: 1, 0.2
+            on_release: root.verify_credentials()
+
+
+<UserPage>:
+    name: "user"
+    BoxLayout:
+        id: mainbox
+        orientation: 'horizontal'
+        padding: 10
+        BoxLayout:
+            id: leftarea
+            orientation: 'vertical'
+            padding: 10
+
+            Label:
+                size_hint: (None, 0.05)
+                valign: 'top'
+                text: 'ROOMS'
+            BoxLayout:
+                # rooms list area
+                ListView:
+                    name: 'roomslist'
+                    id: roomslist
+                    adapter: ListAdapter(data = app.get_rooms_list(), cls = 'RoomListItemButton')
+            Button:
+                text: 'Create nickname'
+                on_release: Factory.CreateNicknamePopup().open()
+                size_hint: 1, 0.0675
 
             Button:
 
-                text: 'Send'
-                on_press: app.send_message(inputmsg)
-                size_hint: 0.2, 1
+                text: 'Create room'
+                on_release: Factory.CreateRoomPopup().open()
+                size_hint: 1, 0.0675
+
+            Button:
+
+                text: 'Subscribe on room'
+                on_release: Factory.SubscribeOnRoom().open()
+                size_hint: 1, 0.0675
+
+            Button:
+
+                text: 'Refresh rooms list'
+                size_hint: 1, 0.0675
+                on_press: app.callback_refresh_rooms(roomslist)
+
+        BoxLayout:
+            id: rightarea
+            orientation: 'vertical'
+            padding: 10
+
+            MessagesBoxLabel:
+                id: messageslabel
+                size_hint: (None, 0.05)
+                valign: 'top'
+                text: 'MESSAGES'
+
+            ScrollView:
+                id: messagesscroll
+                padding: 5
+                canvas.before:
+                    Color:
+                        #possible to change messages box background color here
+                        rgba: hex('#000000')
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+                #messages box area
+                ListView:
+
+                    id: messagesview
+                    item_strings: [str(index) for index in app.messages]
+                    #adapter: ListAdapter(data = app.messages, cls = 'CompositeListItem')
+
+            BoxLayout:
+
+                orientation: 'horizontal'
+                size_hint: 1, 0.27
+
+                TextInput:
+                    id: inputmsg
+
+                Button:
+
+                    text: 'Send'
+                    on_press: app.send_message(inputmsg)
+                    size_hint: 0.2, 1
