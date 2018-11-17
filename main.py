@@ -35,14 +35,27 @@ bitcoin.params = CoinParams
 
 class LoginPage(Screen):
     def verify_credentials(self):
-        server_input = self.ids["rpcserver"].text
-        user_input = self.ids["rpcuser"].text
-        password_input = self.ids["rpcpassword"].text
-        port_input = int(self.ids["port"].text)
-        connection = rpclib.rpc_connect(user_input, password_input, server_input, port_input)
-        if rpclib.getinfo(connection):
-            App.get_running_app().rpc_connection = connection
-            self.manager.current = "user"
+        while True:
+            try:
+                server_input = self.ids["rpcserver"].text
+                user_input = self.ids["rpcuser"].text
+                password_input = self.ids["rpcpassword"].text
+                port_input = int(self.ids["port"].text)
+                connection = rpclib.rpc_connect(user_input, password_input, server_input, port_input)
+            except Exception as e:
+                print(e)
+                print("Not connected. Please check credentials")
+                #TODO: have to throw popup and in this case not clean text fields
+                self.ids["rpcserver"].text = ''
+                self.ids["rpcuser"].text = ''
+                self.ids["rpcpassword"].text = ''
+                self.ids["port"].text = ''
+                break
+            else:
+                App.get_running_app().rpc_connection = connection
+                App.get_running_app().is_connected = True
+                self.manager.current = "user"
+                break
 
 
 class UserPage(Screen):
@@ -71,7 +84,7 @@ class MessageUpdater(Widget):
 
     def messages_checker(self, dt):
         while True:
-            if App.get_running_app().rpc_connection == None:
+            if App.get_running_app().is_connected == False:
                 break
             else:
                 # getting oraclesinfo for active room
@@ -174,6 +187,8 @@ class TrollboxCCApp(App):
     #key: publisher, value: batontxid
     current_baton = {}
 
+    is_connected = False
+
     rpc_connection = None
 
     # while True:
@@ -187,7 +202,7 @@ class TrollboxCCApp(App):
     #         break
 
     def get_rooms_list(self):
-        if App.get_running_app().rpc_connection == None:
+        if App.get_running_app().is_connected == False:
             self.data = ''
         else:
             self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)

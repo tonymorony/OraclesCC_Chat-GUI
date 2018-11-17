@@ -28,7 +28,7 @@
                 text: 'Create nickname'
                 on_release: self.create_nickname(input_nickname.text, input_password.text)
             Button:
-                text: 'Cancel'
+                text: 'Close'
                 on_release: root.dismiss()
 
 <CreateRoomPopup@Popup>:
@@ -54,7 +54,7 @@
                 text: 'Create room'
                 on_release: self.create_room(input_room_name.text, input_room_description.text)
             Button:
-                text: 'Cancel'
+                text: 'Close'
                 on_release: root.dismiss()
 
 
@@ -82,7 +82,7 @@
                 text: 'Subscribe on room'
                 on_release: self.subscribe_room(input_reg_utxos.text)
             Button:
-                text: 'Cancel'
+                text: 'Close'
                 on_release: root.dismiss()
 
 ScreenManagement:
