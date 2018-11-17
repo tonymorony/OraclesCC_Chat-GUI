@@ -31,6 +31,7 @@ echo "[Desktop Entry]" >> ~/Desktop/TrollboxGUI.desktop
 echo "Type=Application" >> ~/Desktop/TrollboxGUI.desktop
 echo "Exec=$HOME/trollbox_gui/run.sh" >> ~/Desktop/TrollboxGUI.desktop
 echo "Name=TrollboxGUI" >> ~/Desktop/TrollboxGUI.desktop
+echo "Terminal=true" >> ~/Desktop/TrollboxGUI.desktop
 echo "Icon=$HOME/trollbox_gui/favicon.ico" >> ~/Desktop/TrollboxGUI.desktop
 
 echo "Installation completed"
