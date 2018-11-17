@@ -135,7 +135,7 @@ class CreateRoomButton(Button):
 
     def create_room(self, room_name, room_description):
 
-        secret_room_description = "CHAT " + room_description
+        secret_room_description = "DCHAT " + room_description
         try:
             new_room_hex = rpclib.oracles_create(App.get_running_app().rpc_connection, room_name, secret_room_description, "S")
             print(new_room_hex)
