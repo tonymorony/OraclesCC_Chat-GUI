@@ -25,6 +25,5 @@ python3 main.py
 
 # Usage 
 
->>>>>>> 921bcd88840da7f35541973f023a8bc36d910eb6
 Then logic as in trollbox scripts (https://github.com/StakedChain/trollbox) - create nickname/oracle/subscribe if needed. 
 At the moment there nothing happens in gui on most of the actions which done in pop-up menus but you should see output in the same console from which you ran it.
