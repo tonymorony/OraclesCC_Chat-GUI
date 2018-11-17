@@ -189,23 +189,13 @@ class TrollboxCCApp(App):
 
     is_connected = False
 
-    rpc_connection = None
-
-    # while True:
-    #     try:
-    #         rpc_connection = rpclib.rpc_connect("user1470049397", "passba2f951ca39f5c865a92b3fb2a5ad69b7c49e79fbc4c92884742ee294983d47d63", "159.69.45.70", 56248)
-    #         rpclib.getinfo(rpc_connection)
-    #     except Exception:
-    #         print("Cant connect to RPC! Please re-check credentials.", "pink")
-    #     else:
-    #         print("Succesfully connected!")
-    #         break
+    #rpc_connection = None
 
     def get_rooms_list(self):
         if App.get_running_app().is_connected == False:
             self.data = ''
         else:
-            self.data = chatlib.get_chat_rooms(TrollboxCCApp.rpc_connection)
+            self.data = chatlib.get_chat_rooms(App.get_running_app().rpc_connection)
         return self.data
 
     def on_text(instance, value):
