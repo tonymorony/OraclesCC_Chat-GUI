@@ -11,7 +11,7 @@ And Komodo builded from FSM branch of https://github.com/jl777/komodo/
 sudo add-apt-repository ppa:kivy-team/kivy
 sudo apt-get install python3-pip libssl-dev cython3 libgl-dev git python3-kivy
 pip3 install requests wheel python-bitcoinlib slick-bitcoinrpc pygame
-git clone https://github.com/tonymorony/trollbox_gui
+git clone https://github.com/tonymorony/OraclesCC_Chat-GUI
 cd trollbox_gui
 python3 main.py
 ```
